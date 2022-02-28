@@ -9,8 +9,5 @@ namespace GerenciadorDeTarefas.Repository
     public interface IUsuarioRepository
     {
         public void Salvar(Usuario usario);
-        bool ExisteUsuarioPeloEmail(string email);
-
-        Usuario GetUsuarioByLoginSenha(string login, string Senha);
-  }
+    }
 }

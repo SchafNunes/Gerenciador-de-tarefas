@@ -14,17 +14,7 @@ namespace GerenciadorDeTarefas.Repository.Impl
             _contexto = contexto;
         }
 
-    public bool ExisteUsuarioPeloEmail(string email)
-    {
-      return _contexto.Usuario.Any(Usuario => Usuario.Email.ToLower() == email);
-    }
-
-    public Usuario GetUsuarioByLoginSenha(string login, string Senha)
-    {
-      return _contexto.Usuario.FirstOrDefault(Usuario => Usuario.Email == login.ToLower() && Usuario.Senha == Senha);
-    }
-
-    public void Salvar(Usuario usuario)
+        public void Salvar(Usuario usuario)
         {
             _contexto.Usuario.Add(usuario);
             _contexto.SaveChanges();

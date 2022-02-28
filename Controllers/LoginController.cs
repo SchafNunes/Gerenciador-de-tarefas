@@ -1,8 +1,6 @@
 ﻿using GerenciadorDeTarefas.Dtos;
 using GerenciadorDeTarefas.Models;
-using GerenciadorDeTarefas.Repository;
 using GerenciadorDeTarefas.Services;
-using GerenciadorDeTarefas.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,67 +12,62 @@ using System.Threading.Tasks;
 
 namespace GerenciadorDeTarefas.Controllers
 {
-  [ApiController]
-  [Route("api/[controller]")]
-  public class LoginController : BaseController
-  {
-    private readonly ILogger<LoginController> _logger;
-    private readonly IUsuarioRepository _usuarioRepository;
-
-
-
-    public LoginController(ILogger<LoginController> logger,
-    IUsuarioRepository usuarioRepository)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class LoginController : BaseController
     {
-      _logger = logger;
-      _usuarioRepository = usuarioRepository;
-    }
+        private readonly ILogger<LoginController> _logger;
 
-    [HttpPost]
-    [AllowAnonymous]
-    public IActionResult EfetuarLogin([FromBody] LoginRequisicaoDto requisicao)
-    {
-      try
-      {
-        if (requisicao == null
-            || string.IsNullOrEmpty(requisicao.Login) || string.IsNullOrWhiteSpace(requisicao.Login)
-            || string.IsNullOrEmpty(requisicao.Senha) || string.IsNullOrWhiteSpace(requisicao.Senha))
-        {
-          return BadRequest(new ErroRespotaDto()
-          {
-            Status = StatusCodes.Status400BadRequest,
-            Erro = "Parâmetros de entrada inválidos"
-          });
-        }
-        var usuario = _usuarioRepository.GetUsuarioByLoginSenha(requisicao.Login, MD5Utils.GerarHashMD5(requisicao.Senha));
+        private readonly string loginTeste = "admin@admin.com";
+        private readonly string senhaTeste = "Admin1234@";
 
-        if (usuario == null)
+        public LoginController(ILogger<LoginController> logger)
         {
-          return BadRequest(new ErroRespotaDto()
-          {
-            Status = StatusCodes.Status400BadRequest,
-            Erro = "Usuario ou senha Inválidos"
-          });
+            _logger = logger;
         }
 
-        var token = TokenService.CriarToken(usuario);
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult EfetuarLogin([FromBody] LoginRequisicaoDto requisicao)
+        {
+            try
+            {
+                if (requisicao == null
+                    || string.IsNullOrEmpty(requisicao.Login) || string.IsNullOrWhiteSpace(requisicao.Login)
+                    || string.IsNullOrEmpty(requisicao.Senha) || string.IsNullOrWhiteSpace(requisicao.Senha)
+                    || requisicao.Login != loginTeste || requisicao.Senha != senhaTeste)
+                {
+                    return BadRequest(new ErroRespotaDto()
+                    {
+                        Status = StatusCodes.Status400BadRequest,
+                        Erro = "Parâmetros de entrada inválidos"
+                    });
+                }
 
-        return Ok(new LoginRespostaDto()
-        {
-          Email = usuario.Email,
-          Nome = usuario.Nome,
-          Token = token
-        });
-      }
-      catch (Exception excecao)
-      {
-        _logger.LogError($"Ocorreu erro ao efetuar login: {excecao.Message}", excecao);
-        return StatusCode(StatusCodes.Status500InternalServerError, new ErroRespotaDto()
-        {
-          Status = StatusCodes.Status500InternalServerError,
-          Erro = "Ocorreu erro ao efetuar login, tente novamente!"
-        });
-      }
+                var usuarioTeste = new Usuario()
+                {
+                    Id = 1,
+                    Nome = "Usuário de Teste",
+                    Email = loginTeste,
+                    Senha = senhaTeste
+                };
+
+                var token = TokenService.CriarToken(usuarioTeste);
+
+                return Ok(new LoginRespostaDto() { 
+                    Email = usuarioTeste.Email,
+                    Nome = usuarioTeste.Nome,
+                    Token = token
+                });
+            }
+            catch(Exception excecao)
+            {
+                _logger.LogError($"Ocorreu erro ao efetuar login: {excecao.Message}", excecao);
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErroRespotaDto() { 
+                    Status = StatusCodes.Status500InternalServerError,
+                    Erro = "Ocorreu erro ao efetuar login, tente novamente!"
+                });
+            }
+        }
     }
-  }
 }

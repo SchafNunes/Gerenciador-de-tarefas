@@ -1,5 +1,4 @@
 ﻿using GerenciadorDeTarefas.Dtos;
-using GerenciadorDeTarefas.Utils;
 using GerenciadorDeTarefas.Models;
 using GerenciadorDeTarefas.Repository;
 using Microsoft.AspNetCore.Authorization;
@@ -53,11 +52,6 @@ namespace GerenciadorDeTarefas.Controllers
                     erros.Add("Email inválido");
                 }
 
-                if(_usuarioRepository.ExisteUsuarioPeloEmail(usuario.Email))
-                {
-                    erros.Add("Já existe uma conta com email informado");
-                }
-
                 if(erros.Count > 0)
                 {
                     return BadRequest(new ErroRespotaDto()
@@ -66,10 +60,7 @@ namespace GerenciadorDeTarefas.Controllers
                         Erros = erros
                     });
                 }
-                
-                usuario.Email = usuario.Email.ToLower();
-                usuario.Senha = MD5Utils.GerarHashMD5(usuario.Senha);
-                
+
                 _usuarioRepository.Salvar(usuario);
 
                 return Ok(new{ msg = "Usuário Criado com sucesso" });
